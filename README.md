@@ -1,23 +1,22 @@
 # software-validation
-ECSE 429 software validation
+ECSE 429 software validation repository
 
-Application Under Test
+**Group number:** 18
+**Members:** Caroline Kouri (2609891230
+
+### Application Under Test
 
 The application under test is a “rest api todo list manager” which may be run as a local host.
 
-A copy of the application is available in myCourses content under topic project.
+The application is made available by Alan Richardson at: https://github.com/eviltester/thingifier/releases
 
-The application is made available by Alan Richardson and can be found online at:
-https://github.com/eviltester/thingifier/releases
-
-Launch the rest api todo list manager with the command:
+Launch the rest api todo list manager with the command to ensure the server is running:
 java -jar runTodoManagerRestAPI-1.5.5.jar
 
-Basic documentation about the api todo list manager is found at:
-http://localhost:4567/docs
+The tests use JUnit 5 and JDK 18 
 
 
-Deliverable A: 
+### Deliverable A: 
 
 - Exploratory Testing
 - Unit Tests

@@ -221,10 +221,10 @@ public class Tests {
          */
         public void testPostTodosInvalid() {
 
-                String request1 = "{ \"title\": \"Test Todo\", \"doneStatus\": \"false\", \"description\": \"A test todo\" }";
-                String request2 = "{ \"title\": \" \", \"doneStatus\": \"false\", \"description\": \"A test todo\" }";
-                String request3 = "{ \"title\": null, \"doneStatus\": \"false\", \"description\": \"A test todo\" }";
-                String request4 = "{ \"id\": 3, \"title\": \"No ID\", \"doneStatus\": \"false\", \"description\": \"A test todo\" }";
+                String request1 = "{ \"title\": \"Invalid Todo\", \"doneStatus\": \"false\", \"description\": \"Boolean as a string\" }";
+                String request2 = "{ \"title\": \" \", \"doneStatus\": false, \"description\": \"No title\" }";
+                String request3 = "{ \"title\": null, \"doneStatus\": false, \"description\": \"Null title\" }";
+                String request4 = "{ \"id\": 3, \"title\": \"No ID\", \"doneStatus\": false, \"description\": \"With an ID\" }";
         
                 Response response1 = given()
                                 .header("Content-Type", "application/json")
@@ -261,9 +261,15 @@ public class Tests {
                 
 
                 assertEquals(400, response1.statusCode());
+                assertEquals("[Failed Validation: doneStatus should be BOOLEAN]", response1.jsonPath().getString("errorMessages"));
                 assertEquals(400, response2.statusCode());
+                assertEquals("[Failed Validation: title : can not be empty]", response2.jsonPath().getString("errorMessages"));
                 assertEquals(400, response3.statusCode());
+                assertEquals("[title : field is mandatory]",response3.jsonPath().getString("errorMessages"));
                 assertEquals(400, response4.statusCode());
+                assertEquals("[Invalid Creation: Failed Validation: Not allowed to create with id]", response4.jsonPath().getString("errorMessages"));
+
+
         }
 
         // with IDs //
@@ -320,7 +326,7 @@ public class Tests {
         /*
          * Testing post todos with ID which is not valid
          */
-        public void testPostwithID() {
+        public void testPostwithInvalidID() {
                 String request = "{\"title\": \"Buy Paper\", \"doneStatus\": false, \"description\": \"Going to store\" }";
                 Response response = given()
                                 .header("Content-Type", "application/json")
@@ -331,6 +337,7 @@ public class Tests {
                                 .extract().response();
 
                 assertEquals(404, response.statusCode());
+                assertEquals("[No such todo entity instance with GUID or ID 500 found]",response.jsonPath().getString("errorMessages"));
 
         }
 
@@ -344,11 +351,12 @@ public class Tests {
                                 .header("Content-Type", "application/json")
                                 .body(request)
                                 .when()
-                                .put("/todos/id/108")
+                                .put("/todos/108")
                                 .then()
                                 .extract().response();
 
                 assertEquals(404, response.statusCode());
+                assertEquals("[Invalid GUID for 108 entity todo]",response.jsonPath().getString("errorMessages"));
         }
 
         @Test

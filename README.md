@@ -2,7 +2,8 @@
 ECSE 429 software validation repository
 
 **Group number:** 18
-**Members:** Caroline Kouri (2609891230
+
+**Members:** Caroline Kouri (260989123)
 
 ### Application Under Test
 
@@ -10,10 +11,10 @@ The application under test is a “rest api todo list manager” which may be ru
 
 The application is made available by Alan Richardson at: https://github.com/eviltester/thingifier/releases
 
-Launch the rest api todo list manager with the command to ensure the server is running:
-java -jar runTodoManagerRestAPI-1.5.5.jar
 
-The tests use JUnit 5 and JDK 18 
+Launch the rest api todo list manager with the command to ensure the server is running: **java -jar runTodoManagerRestAPI-1.5.5.jar**
+
+The tests use **JUnit 5** and **JDK 18**
 
 
 ### Deliverable A: 

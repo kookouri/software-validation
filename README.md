@@ -1,7 +1,8 @@
 # software-validation
 ECSE 429 software validation
 
-##Application Under Test
+Application Under Test
+
 The application under test is a “rest api todo list manager” which may be run as a local host.
 
 A copy of the application is available in myCourses content under topic project.

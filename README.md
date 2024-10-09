@@ -3,7 +3,7 @@ ECSE 429 software validation repository
 
 **Group number:** 18
 
-**Members:** Caroline Kouri (260989123)
+**Member:** Caroline Kouri (260989123)
 
 ### Application Under Test
 

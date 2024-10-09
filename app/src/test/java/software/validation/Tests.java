@@ -380,7 +380,7 @@ public class Tests {
          * Delete todos with ID
          */
         public void testDeletewithID() {
-                String request = "{\"title\": \"To Delete\", \"doneStatus\": false, \"description\": \"Waiting deletion :(\" }";
+                String request = "{\"title\": \"To Delete\", \"doneStatus\": false, \"description\": \"Awaiting deletion :(\" }";
                 Response response = given()
                                 .header("Content-Type", "application/json")
                                 .body(request)

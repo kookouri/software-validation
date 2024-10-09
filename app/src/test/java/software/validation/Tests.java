@@ -10,6 +10,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import static io.restassured.RestAssured.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterAll;
+
 //Ensure random order of testing
 @TestMethodOrder(MethodOrderer.Random.class)
 public class Tests {
@@ -19,6 +21,9 @@ public class Tests {
                 RestAssured.baseURI = "http://localhost:4567";
         }
 
+        /*
+         * Ensure the server is running
+         */
         @Test
         public void serverInitiation() {
                 Response response = given()
@@ -32,7 +37,7 @@ public class Tests {
 
         @Test
         /*
-         * Test head todos
+         * Testing the head todos
          */
         public void testHeadTodos() {
                 Response response = given()
@@ -61,121 +66,6 @@ public class Tests {
                 assertNotNull(response.body());
 
         }
-
-        @Test
-        /*
-         * Testing the the URL sensitivity as seen in exploratory testing instabilities
-         */
-        public void testURL() {
-                Response response = given()
-                                .when()
-                                .get("/todos/")
-                                .then()
-                                .extract().response();
-
-                assertEquals(404, response.statusCode());
-        }
-        @Test
-        /*
-         * Testing posting with a badly written JSON file
-         */
-        public void testMalformedJSON() {
-                String badrequest = "{ \"title\": \"Staples, \"doneStatus\": false, \"description\": \"bad request\" ";
-
-                Response response = given()
-                                .header("Content-Type", "application/json")
-                                .body(badrequest)
-                                .when()
-                                .post("/todos")
-                                .then()
-                                .extract().response();
-
-                assertEquals(400, response.statusCode());
-        }
-
-
-        @Test
-        /*
-         * Testing posting with a badly written XML 
-         */
-        public void testMalformedXML() {
-                String badrequest = "<todo><title>Staples tag<doneStatus>false</doneStatus></todo>";
-
-                Response response = given()
-                                .header("Content-Type", "application/xml")
-                                .body(badrequest)
-                                .when()
-                                .post("/todos")
-                                .then()
-                                .extract().response();
-
-                assertEquals(400, response.statusCode());
-        }
-
-        @Test
-        public void testDeleteInvalidTodo() {
-        String request = "{\"title\": \"Staple paperwork\", \"doneStatus\": false, \"description\": \"Waiting deletion :(\" }";
-
-        // Create a new todo
-        Response createResponse = given()
-                .header("Content-Type", "application/json")
-                .body(request)
-                .when()
-                .post("/todos")
-                .then()
-                .extract().response();
-
-        String id = createResponse.jsonPath().getString("id");
-
-        // Delete the todo
-        Response deleteResponse = given()
-                .header("Content-Type", "application/json")
-                .when()
-                .delete("/todos/" + id)
-                .then()
-                .extract().response();
-
-        assertEquals(200, deleteResponse.statusCode());
-
-        // Try to delete it again
-        Response deleteAgainResponse = given()
-                .header("Content-Type", "application/json")
-                .when()
-                .delete("/todos/" + id)
-                .then()
-                .extract().response();
-
-        assertEquals(404, deleteAgainResponse.statusCode());
-        }
-
-        @Test
-        public void testGetTodosAsJSON() {
-         Response response = given()
-            .accept("application/json")
-            .when()
-            .get("/todos")
-            .then()
-            .extract().response();
-
-    assertEquals(200, response.statusCode());
-    assertFalse(response.jsonPath().getList("todos").isEmpty());
-}
-
-        @Test
-        public void testGetTodosAsXML() {
-        Response response = given()
-            .accept("application/xml")
-            .when()
-            .get("/todos")
-            .then()
-            .extract().response();
-
-    assertEquals(200, response.statusCode());
-    assertNotNull(response.xmlPath().getString("todos.todo[0].id"));
-    assertFalse(response.xmlPath().getString("todos.todo[0].id").isEmpty());
-
-}
-
 
         @Test
         /*
@@ -216,8 +106,132 @@ public class Tests {
 
         @Test
         /*
-         * Testing to see if a empty string title, null title,
-         * non-boolean doneStatus, and an ID are invalid
+         * Testing the get todos as a JSON
+         */
+        public void testGetTodosAsJSON() {
+                Response response = given()
+                                .accept("application/json")
+                                .when()
+                                .get("/todos")
+                                .then()
+                                .extract().response();
+
+                assertEquals(200, response.statusCode());
+                assertFalse(response.jsonPath().getList("todos").isEmpty());
+        }
+
+        @Test
+        /*
+         * Testing the get todos as an XML
+         */
+        public void testGetTodosAsXML() {
+                Response response = given()
+                                .accept("application/xml")
+                                .when()
+                                .get("/todos")
+                                .then()
+                                .extract().response();
+
+                assertEquals(200, response.statusCode());
+                assertNotNull(response.xmlPath().getString("todos.todo[0].id"));
+                assertFalse(response.xmlPath().getString("todos.todo[0].id").isEmpty());
+
+        }
+
+        @Test
+        /*
+         * Testing the the URL sensitivity as seen in exploratory testing instabilities
+         */
+        public void testURL() {
+                Response response = given()
+                                .when()
+                                .get("/todos/")
+                                .then()
+                                .extract().response();
+
+                assertEquals(404, response.statusCode());
+        }
+
+        @Test
+        /*
+         * Testing posting with a malformed written JSON file
+         */
+        public void testMalformedJSON() {
+                String badrequest = "{ \"title\": \"Staples, \"doneStatus\": false, \"description\": \"bad request\" ";
+
+                Response response = given()
+                                .header("Content-Type", "application/json")
+                                .body(badrequest)
+                                .when()
+                                .post("/todos")
+                                .then()
+                                .extract().response();
+
+                assertEquals(400, response.statusCode());
+        }
+
+        @Test
+        /*
+         * Testing posting with a malformed XML file
+         */
+        public void testMalformedXML() {
+                String badrequest = "<todo><title>Staples<doneStatus>false</doneStatus><description>Malformed XML</description></todo>";
+
+                Response response = given()
+                                .header("Content-Type", "application/xml")
+                                .body(badrequest)
+                                .when()
+                                .post("/todos")
+                                .then()
+                                .extract().response();
+
+                assertEquals(400, response.statusCode());
+        }
+
+        @Test
+        /*
+         * Deleting a response that has already been deleted
+         */
+        public void testDeleteInvalidTodo() {
+                String request = "{\"title\": \"Staple paperwork\", \"doneStatus\": false, \"description\": \"Waiting deletion :(\" }";
+
+                // Create a new todo
+                Response createResponse = given()
+                                .header("Content-Type", "application/json")
+                                .body(request)
+                                .when()
+                                .post("/todos")
+                                .then()
+                                .extract().response();
+
+                // take ID of new todo
+                String id = createResponse.jsonPath().getString("id");
+
+                // Delete the todo
+                Response deleteResponse = given()
+                                .header("Content-Type", "application/json")
+                                .when()
+                                .delete("/todos/" + id)
+                                .then()
+                                .extract().response();
+
+                assertEquals(200, deleteResponse.statusCode());
+
+                // Try to delete it again
+                Response deleteAgainResponse = given()
+                                .header("Content-Type", "application/json")
+                                .when()
+                                .delete("/todos/" + id)
+                                .then()
+                                .extract().response();
+
+                assertEquals(404, deleteAgainResponse.statusCode());
+        }
+
+        @Test
+        /*
+         * Testing to see if a POST request with empty string title, null title,
+         * non-boolean doneStatus, or ID are invalid
          */
         public void testPostTodosInvalid() {
 
@@ -225,7 +239,7 @@ public class Tests {
                 String request2 = "{ \"title\": \" \", \"doneStatus\": false, \"description\": \"No title\" }";
                 String request3 = "{ \"title\": null, \"doneStatus\": false, \"description\": \"Null title\" }";
                 String request4 = "{ \"id\": 3, \"title\": \"No ID\", \"doneStatus\": false, \"description\": \"With an ID\" }";
-        
+
                 Response response1 = given()
                                 .header("Content-Type", "application/json")
                                 .body(request1)
@@ -258,17 +272,18 @@ public class Tests {
                                 .then()
                                 .extract().response();
 
-                
-
+                // confirm both status code and the error message as seen in exploratory testing
                 assertEquals(400, response1.statusCode());
-                assertEquals("[Failed Validation: doneStatus should be BOOLEAN]", response1.jsonPath().getString("errorMessages"));
+                assertEquals("[Failed Validation: doneStatus should be BOOLEAN]",
+                                response1.jsonPath().getString("errorMessages"));
                 assertEquals(400, response2.statusCode());
-                assertEquals("[Failed Validation: title : can not be empty]", response2.jsonPath().getString("errorMessages"));
+                assertEquals("[Failed Validation: title : can not be empty]",
+                                response2.jsonPath().getString("errorMessages"));
                 assertEquals(400, response3.statusCode());
-                assertEquals("[title : field is mandatory]",response3.jsonPath().getString("errorMessages"));
+                assertEquals("[title : field is mandatory]", response3.jsonPath().getString("errorMessages"));
                 assertEquals(400, response4.statusCode());
-                assertEquals("[Invalid Creation: Failed Validation: Not allowed to create with id]", response4.jsonPath().getString("errorMessages"));
-
+                assertEquals("[Invalid Creation: Failed Validation: Not allowed to create with id]",
+                                response4.jsonPath().getString("errorMessages"));
 
         }
 
@@ -337,15 +352,16 @@ public class Tests {
                                 .extract().response();
 
                 assertEquals(404, response.statusCode());
-                assertEquals("[No such todo entity instance with GUID or ID 500 found]",response.jsonPath().getString("errorMessages"));
+                assertEquals("[No such todo entity instance with GUID or ID 500 found]",
+                                response.jsonPath().getString("errorMessages"));
 
         }
 
         @Test
         /*
-         * Testing put todos with ID
+         * Testing put todos with ID which is not valid
          */
-        public void testPutwithIDInvalid() {
+        public void testPutwithIDinRequest() {
                 String request = "{\"id\": 108, \"title\": \"Invalid ID test\", \"doneStatus\": false, \"description\": \"Filing paperwork\" }";
                 Response response = given()
                                 .header("Content-Type", "application/json")
@@ -356,7 +372,7 @@ public class Tests {
                                 .extract().response();
 
                 assertEquals(404, response.statusCode());
-                assertEquals("[Invalid GUID for 108 entity todo]",response.jsonPath().getString("errorMessages"));
+                assertEquals("[Invalid GUID for 108 entity todo]", response.jsonPath().getString("errorMessages"));
         }
 
         @Test
@@ -388,9 +404,12 @@ public class Tests {
         }
 
         @Test
+        /*
+         * Create a relationship between project and todo
+         */
         public void testPostTodosTasksof() {
                 // Create taskof project id = 1 for todo of id = 1
-                
+
                 String tasksof = "{ \"id\": \"1\" }";
 
                 Response response = given()
@@ -405,8 +424,11 @@ public class Tests {
         }
 
         @Test
+        /*
+         * Get the tasks related to a todo
+         */
         public void testGetTodosIdTasksof() {
-                // Create taskof project id = 1 for todo of id = 1 
+                // Create taskof project id = 1 for todo of id = 1
                 String tasksof = "{ \"id\": \"1\" }";
                 Response response1 = given()
                                 .header("Content-Type", "application/json")
@@ -429,10 +451,13 @@ public class Tests {
         }
 
         @Test
+        /*
+         * Delete the tasksof from the todo
+         */
         public void testDeleteTodosIdTasksof() {
-                // Create taskof project id = 1 for todo of id = 1 
+                // Create taskof project id = 1 for todo of id = 1
                 String tasksof = "{ \"id\": \"1\" }";
-                Response categoryResponse = given()
+                Response response1 = given()
                                 .header("Content-Type", "application/json")
                                 .body(tasksof)
                                 .when()
@@ -440,7 +465,7 @@ public class Tests {
                                 .then()
                                 .extract().response();
 
-                assertEquals(201, categoryResponse.statusCode());
+                assertEquals(201, response1.statusCode());
                 Response response = given()
                                 .header("Content-Type", "application/json")
                                 .when()
@@ -452,6 +477,9 @@ public class Tests {
         }
 
         @Test
+        /*
+         * Create a relationship between todos and categories
+         */
         public void testPostTodosCategories() {
                 // Create a new todo for category relationship
                 String category = "{ \"id\": \"1\" }";
@@ -467,6 +495,9 @@ public class Tests {
         }
 
         @Test
+        /*
+         * Get the categories related to a todo
+         */
         public void testGetTodosIdCategories() {
                 Response response = given()
                                 .when()
@@ -479,6 +510,9 @@ public class Tests {
         }
 
         @Test
+        /*
+         * Delete the category from a todo
+         */
         public void testDeleteTodosIdCategories() {
                 // Create a new todo for category relationship
                 String category = "{ \"id\": \"1\" }";
@@ -501,4 +535,19 @@ public class Tests {
                 assertEquals(200, response.statusCode());
         }
 
+        // //only uncomment when you want to shutdown the system or else the other tests wont pass the build will fail after shutdown
+        // /*
+        //  * GET for shutdown of application 
+        //  */
+
+        // @AfterAll
+        // public static void shutdown() {
+        //         try {
+        //                 Response response = given()
+        //                                 .get("http://localhost:4567/shutdown");
+
+        //         } catch (Exception e) {
+        //                 e.printStackTrace();
+        //         }
+        // }
 }

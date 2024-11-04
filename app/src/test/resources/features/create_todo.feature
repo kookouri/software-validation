@@ -6,7 +6,7 @@ Background:
     Given the API is responsive and contains only default todo objects
 
 #Normal FLow 
-Scenario Outline: Sucessfully create a new todo 
+Scenario Outline: Successfully create a new todo with all feilds
     When a new todo is created with the title "<title>", the doneStatus "<doneStatus>" and the description "<description>"
     Then the status code 201 will be received 
     Then a new todo exists in the database with the title "<title>", the doneStatus "<doneStatus>" and the description "<description>"
@@ -17,7 +17,7 @@ Scenario Outline: Sucessfully create a new todo
     | Purchasing folders  | true       | Puttin away folders | 
 
 #Alternate Flow 
-Scenario Outline: Sucessfully create a new todo with only title
+Scenario Outline: Successfully create a new todo with only the title
     When a new todo is created with the title "<title>"
     Then the status code 201 will be received 
     Then a new todo exists in the database with the title "<title>" and the default status
@@ -29,7 +29,7 @@ Scenario Outline: Sucessfully create a new todo with only title
 
 
 #Error Flow 
-Scenario Outline: Unsuccessfully create a new todo 
+Scenario Outline: Unsuccessfully create a new todo with an empty title
     When a new todo is created with the title "<title>" and the done status "<doneStatus>" and the description "<description>"
     Then a todo will not be created
     Then the status code 400 will be received 

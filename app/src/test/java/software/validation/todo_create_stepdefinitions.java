@@ -7,27 +7,21 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-import static io.restassured.RestAssured.request;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.TestMethodOrder;
 
 
-@TestMethodOrder(MethodOrderer.Random.class)
 
 public class todo_create_stepdefinitions {
 
     private Response response;
     private RequestSpecification request;
-    private String todoId;
     private String todo2Id;
     private String todo1Id;
     private static final String BASE_URL = "http://localhost:4567";
@@ -70,7 +64,7 @@ public class todo_create_stepdefinitions {
 
     }
 
-    // CREATE TODO STEPS
+    // Create todo steps
 
     @When("a new todo is created with the title {string}, the doneStatus {string} and the description {string}")
     public void createTodoWithAllFields(String title, String doneStatus, String description) {
@@ -140,7 +134,7 @@ public class todo_create_stepdefinitions {
         assertEquals(400, response.getStatusCode(), "Expected status code 400 for invalid creation");
     }
 
-    // UPDATE TODO STEPS
+    // Update Todo Steps
     @When("a todo of id {string} with the title {string}, the doneStatus {string} and the description {string} with the name {string}, doneStatus {string} and description {string}")
     public void updateTodoWithDetails(String id, String title, String doneStatus, String description, String newTitle, String newDoneStatus, String newDescription) {
         RestAssured.baseURI = BASE_URL;
@@ -222,7 +216,7 @@ public class todo_create_stepdefinitions {
                 "Expected a status code of 400, indicating the update was not successful.");
     }
 
-    // DELETE TODO STEPS
+    // Delete Todo Steps
 
     @When("a todo of id {string} with the title {string}, the doneStatus {string} and the description {string} is deleted from the system")
     public void deleteTodoWithId(String id, String title, String doneStatus, String description) {
@@ -237,37 +231,19 @@ public class todo_create_stepdefinitions {
 
     }
 
-    @When("a todo with the title {string} is deleted from the system")
-    public void deleteTodoWithTitle(String title) {
+    @When("a todo of id {string} with the title {string}, the doneStatus {string} and the description {string} is deleted from the system associated with the category {string}")
+    public void deleteTodoWithCategory(String id, String title, String doneStatus, String description, String categoryid) {
         RestAssured.baseURI = BASE_URL;
         request = RestAssured.given().contentType("application/json");
     
-        // Get all todos
-        Response getTodosResponse = RestAssured.get("/todos");
-        assertEquals(200, getTodosResponse.getStatusCode(), "Expected status code 200 for retrieving todos");
-    
-        // Find the todo with the matching title
-        List<Map<String, Object>> todos = getTodosResponse.jsonPath().getList("todos");
-        String todoId = null;
-      
-        for (Object todoObject : todos) {
-            Map<String, Object> todo = (Map<String, Object>) todoObject;
-            // Now use todo.get("title") or todo.get("id") as needed
-        }
+        // Step 1: Manually associate the todo with the specified category
+        request.body("{\"id\": \"" + todo2Id + "\", \"title\": \"" + title + "\", \"doneStatus\": " + doneStatus + ", \"description\": \"" + description + "\"}");
+        response = request.post("/todos/" + todo2Id + "/categories/1");
         
-    
-        for (Map<String, Object> todo : todos) {
-            if (title.equals(todo.get("title"))) {
-                todoId = todo.get("id").toString();
-                break;
-            }
-        }
-    
-        // Check if the todo with the given title was found
-        assertNotNull(todoId, "Todo with title '" + title + "' was not found in the database");
-    
-        // Send DELETE request to remove the found todo
-        response = request.delete("/todos/" + todoId);
+        todo2Id = String.valueOf(todo2Id);
+        
+        // Step 2: Proceed to delete the todo by ID
+        response = request.delete("/todos/" + todo2Id);
         assertEquals(200, response.getStatusCode(), "Expected status code 200 for successful deletion");
     }
 

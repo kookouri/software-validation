@@ -17,7 +17,7 @@ Scenario Outline: Sucessfully update the done status of a todo
     |  2 | File Paperwork    | false      | Filing paperwork    | Cut Paperwork    |   true          | Files  paperwork|
 
 #Alternate Flow 
-Scenario Outline: Sucessfully update the description of a todo to an empty one 
+Scenario Outline: Successfully update the description of a todo to an empty one 
     When a todo of id "<id>" with the title "<title>", the doneStatus "<doneStatus>" and the description "<description>" with the name "<new_title>", doneStatus "<new_doneStatus>" and an empty description "<new_description>"
     Then the status code 200 will be received 
     Then the todo with id "<id>" will exist in the database with the title "<new_title>", doneStatus "<new_doneStatus>" and description "<new_description>"

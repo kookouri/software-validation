@@ -6,7 +6,7 @@ Background:
     Given the API is responsive and contains only default todo objects
 
 #Normal FLow 
-Scenario Outline: Sucessfully delete a todo 
+Scenario Outline: Successfully delete a todo with all feilds
     When a todo of id "<id>" with the title "<title>", the doneStatus "<doneStatus" and the description "<description>" is deleted from the system
     Then the status code 200 will be received 
     Then the todo with id "<id>" will be deleted from the database
@@ -17,19 +17,19 @@ Scenario Outline: Sucessfully delete a todo
     |  2 | File Paperwork    | false      | Filing paperwork    |
 
 #Alternate Flow 
-Scenario Outline: Sucessfully delete a new todo with only title
-    When a new todo is deleted with the title "<title>" is deleted from the system
+Scenario Outline: Successfully delete a todo with a category
+    When a todo of id "<id>" with the title "<title>", the doneStatus "<doneStatus" and the description "<description>" is deleted from the system associated with the category "<categoryid>"
     Then the status code 200 will be received 
-    Then the todo with title "<title>" will be deleted from the database
+    Then the todo with id "<id>" will be deleted from the database
 
     Examples:
-    | title             | 
-    | Staple Paperwork  | 
-    | File Paperwork    | 
+    | id | title             | doneStatus | description         | categoryid |
+    |  1 | Staple Paperwork  | false      | Filing paperwork    | 1          |
+    |  2 | File Paperwork    | false      | Filing paperwork    | 2          |
 
 
 #Error Flow 
-Scenario Outline: Unsucessfully delete a todo thats already been deleted
+Scenario Outline: Unsuccessfully delete a todo thats already been deleted
     When a todo with an invalid "<id>" with the title "<title>", the doneStatus "<doneStatus" and the description "<description>" is deleted from the system
     Then the status code 404 will be received 
 

@@ -1,22 +1,19 @@
 package software.validation;
 
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
-import io.cucumber.java.en.Then;
-import io.restassured.RestAssured;
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 public class todo_create_stepdefinitions {
 
@@ -64,7 +61,7 @@ public class todo_create_stepdefinitions {
 
     }
 
-    // Create todo steps
+    /////////// Create todo steps ///////
 
     @When("a new todo is created with the title {string}, the doneStatus {string} and the description {string}")
     public void createTodoWithAllFields(String title, String doneStatus, String description) {
@@ -75,8 +72,6 @@ public class todo_create_stepdefinitions {
                 "doneStatus", doneStatusBoolean,
                 "description", description);
         response = request.body(todoData).post("/todos");
-
-        // Verify response contains the expected description
         assertEquals(201, response.getStatusCode(), "Expected a successful creation with status code 201");
         assertEquals(description, response.jsonPath().getString("description"),
                 "Description in response does not match");
@@ -110,8 +105,8 @@ public class todo_create_stepdefinitions {
         Response getTodosResponse = RestAssured.get("/todos");
         boolean todoExists = getTodosResponse.jsonPath().getList("todos.title").contains(title);
         assertTrue(todoExists, "Todo with title '" + title + "' was not found in the database");
+        Boolean defaultStatus = false;
 
-        Boolean defaultStatus = false; // Assume the default status is false
         String todoStatusString = getTodosResponse.jsonPath()
                 .getString("todos.find { it.title == '" + title + "' }.doneStatus");
         Boolean todoStatus = Boolean.parseBoolean(todoStatusString);
@@ -121,11 +116,11 @@ public class todo_create_stepdefinitions {
     @When("a new todo is created with the title {string} and the done status {string} and the description {string}")
     public void createTodoWithInvalidFields(String title, String doneStatus, String description) {
         Boolean doneStatusBoolean = Boolean.parseBoolean(doneStatus);
-
         Map<String, Object> todoData = Map.of(
                 "title", title,
                 "doneStatus", doneStatusBoolean,
                 "description", description);
+
         response = request.body(todoData).post("/todos");
     }
 
@@ -134,80 +129,66 @@ public class todo_create_stepdefinitions {
         assertEquals(400, response.getStatusCode(), "Expected status code 400 for invalid creation");
     }
 
-    // Update Todo Steps
+    ///////// Update Todo Steps//////////
+    
     @When("a todo of id {string} with the title {string}, the doneStatus {string} and the description {string} with the name {string}, doneStatus {string} and description {string}")
-    public void updateTodoWithDetails(String id, String title, String doneStatus, String description, String newTitle, String newDoneStatus, String newDescription) {
+    public void updateTodoWithDetails(String id, String title, String doneStatus, String description, String newTitle,
+            String newDoneStatus, String newDescription) {
         RestAssured.baseURI = BASE_URL;
         request = RestAssured.given().contentType("application/json");
-    
         Boolean newDoneStatusBoolean = Boolean.parseBoolean(newDoneStatus);
-
-
-        Map<String, Object> updatedTodoData =  Map.of(
-        "title", newTitle,
-        "doneStatus", newDoneStatusBoolean,
-        "description", newDescription);
-
+        Map<String, Object> updatedTodoData = Map.of(
+                "title", newTitle,
+                "doneStatus", newDoneStatusBoolean,
+                "description", newDescription);
         todo2Id = String.valueOf(todo2Id);
         System.out.println("Updating Todo with ID: " + todo2Id);
 
         response = request.body(updatedTodoData).put("/todos/" + todo2Id);
-
         assertEquals(200, response.getStatusCode(), "Expected status code 200 for successful update");
     }
 
     // Update the description of a todo to an empty value
     @When("a todo of id {string} with the title {string}, the doneStatus {string} and the description {string} with the name {string}, doneStatus {string} and an empty description {string}")
-    public void updateTodoWithEmptyDescription(String id, String title, String doneStatus, String description, String newTitle, String newDoneStatus, String newDescription) {
-                RestAssured.baseURI = BASE_URL;
-                request = RestAssured.given().contentType("application/json");
-            
-                Boolean newDoneStatusBoolean = Boolean.parseBoolean(newDoneStatus);
-        
-        
-                Map<String, Object> updatedTodoData =  Map.of(
+    public void updateTodoWithEmptyDescription(String id, String title, String doneStatus, String description,
+            String newTitle, String newDoneStatus, String newDescription) {
+        RestAssured.baseURI = BASE_URL;
+        request = RestAssured.given().contentType("application/json");
+        Boolean newDoneStatusBoolean = Boolean.parseBoolean(newDoneStatus);
+        Map<String, Object> updatedTodoData = Map.of(
                 "title", newTitle,
                 "doneStatus", newDoneStatusBoolean,
                 "description", newDescription);
-        
-                todo2Id = String.valueOf(todo2Id);
-                System.out.println("Updating Todo with ID: " + todo2Id);
-        
-                response = request.body(updatedTodoData).put("/todos/" + todo2Id);
-        
-                assertEquals(200, response.getStatusCode(), "Expected status code 200 for successful update");
-            }
-    
+        todo2Id = String.valueOf(todo2Id);
+        System.out.println("Updating Todo with ID: " + todo2Id);
 
-    // Attempt to update a todo with an empty title
+        response = request.body(updatedTodoData).put("/todos/" + todo2Id);
+        assertEquals(200, response.getStatusCode(), "Expected status code 200 for successful update");
+    }
+
     @When("a todo of id {string} with an empty title {string}, the doneStatus {string} and the description {string} with the name {string}, doneStatus {string} and description {string}")
     public void updateodoWithInvalidFields(String id, String title, String doneStatus, String description,
-        String newTitle, String newDoneStatus, String newDescription) {
+            String newTitle, String newDoneStatus, String newDescription) {
         Boolean newDoneStatusBoolean = Boolean.parseBoolean(newDoneStatus);
-
-        // Create a map with updated fields
         Map<String, Object> updatedTodoData = new HashMap<>();
         updatedTodoData.put("title", newTitle);
         updatedTodoData.put("doneStatus", newDoneStatusBoolean);
         updatedTodoData.put("description", ""); // Setting description to an empty string
 
-        // Send a PUT request to update the todo
         response = request.body(updatedTodoData).put("/todos/" + todo1Id);
     }
-
 
     @Then("the todo with id {string} will exist in the database with the title {string}, doneStatus {string} and description {string}")
     public void verifyLastTodoUpdated(String id, String newTitle, String newDoneStatus, String newDescription) {
         RestAssured.baseURI = BASE_URL;
-
-        // Get the last todo by ID and verify its fields
         todo2Id = String.valueOf(todo2Id);
         Response responseToDo = RestAssured.get("/todos/" + todo2Id);
-        
-    
+
         assertEquals(newTitle, responseToDo.jsonPath().getString("todos[0].title"), "Title does not match");
-        assertEquals(newDoneStatus, responseToDo.jsonPath().getString("todos[0].doneStatus"), "doneStatus does not match");
-        assertEquals(newDescription, responseToDo.jsonPath().getString("todos[0].description"), "Description does not match");
+        assertEquals(newDoneStatus, responseToDo.jsonPath().getString("todos[0].doneStatus"),
+                "doneStatus does not match");
+        assertEquals(newDescription, responseToDo.jsonPath().getString("todos[0].description"),
+                "Description does not match");
     }
 
     @Then("a todo will not be updated")
@@ -216,33 +197,30 @@ public class todo_create_stepdefinitions {
                 "Expected a status code of 400, indicating the update was not successful.");
     }
 
-    // Delete Todo Steps
+    /////////// Delete Todo Steps //////////
 
     @When("a todo of id {string} with the title {string}, the doneStatus {string} and the description {string} is deleted from the system")
     public void deleteTodoWithId(String id, String title, String doneStatus, String description) {
         RestAssured.baseURI = BASE_URL;
         request = RestAssured.given().contentType("application/json");
-       
+
         todo2Id = String.valueOf(todo2Id);
-        
-        // Proceed to delete the todo by ID
+
         response = request.delete("/todos/" + todo2Id);
         assertEquals(200, response.getStatusCode(), "Expected status code 200 for successful deletion");
 
     }
 
     @When("a todo of id {string} with the title {string}, the doneStatus {string} and the description {string} is deleted from the system associated with the category {string}")
-    public void deleteTodoWithCategory(String id, String title, String doneStatus, String description, String categoryid) {
+    public void deleteTodoWithCategory(String id, String title, String doneStatus, String description,
+            String categoryid) {
         RestAssured.baseURI = BASE_URL;
         request = RestAssured.given().contentType("application/json");
-    
-        // Step 1: Manually associate the todo with the specified category
-        request.body("{\"id\": \"" + todo2Id + "\", \"title\": \"" + title + "\", \"doneStatus\": " + doneStatus + ", \"description\": \"" + description + "\"}");
+        request.body("{\"id\": \"" + todo2Id + "\", \"title\": \"" + title + "\", \"doneStatus\": " + doneStatus
+                + ", \"description\": \"" + description + "\"}");
         response = request.post("/todos/" + todo2Id + "/categories/1");
-        
         todo2Id = String.valueOf(todo2Id);
-        
-        // Step 2: Proceed to delete the todo by ID
+
         response = request.delete("/todos/" + todo2Id);
         assertEquals(200, response.getStatusCode(), "Expected status code 200 for successful deletion");
     }
@@ -256,7 +234,6 @@ public class todo_create_stepdefinitions {
     public void verifyTodoDeletedFromDatabase(String id) {
         RestAssured.baseURI = BASE_URL;
         request = RestAssured.given().contentType("application/json");
-       
         todo2Id = String.valueOf(todo2Id);
 
         Response getTodoResponse = RestAssured.get("/todos/" + todo2Id);
@@ -265,16 +242,14 @@ public class todo_create_stepdefinitions {
 
     @Then("the todo with title {string} will be deleted from the database")
     public void verifyTodoDeletedByTitle(String title) {
-        // Fetch all todos and confirm that the todo with the specified title is no
-        // longer present
         Response getTodosResponse = RestAssured.get("/todos");
         List<Map<String, Object>> todos = getTodosResponse.jsonPath().getList("todos");
-
         boolean todoExists = todos.stream().anyMatch(todo -> title.equals(todo.get("title")));
         assertFalse(todoExists, "Todo with title '" + title + "' should be deleted from the database.");
     }
 
 
+    /// Apply to all of the feature files ///
     @Then("the status code {int} will be received")
     public void verifyStatusCode(int statusCode) {
         assertEquals(statusCode, response.getStatusCode(),
@@ -287,6 +262,4 @@ public class todo_create_stepdefinitions {
         assertEquals(expectedErrorMessage, actualErrorMessage, "Error message does not match");
     }
 
-  
-    
 }

@@ -44,17 +44,17 @@ public class todo_create_stepdefinitions {
     private void postDefaultTodos() {
         // Creating and logging todos with IDs
         Map<String, Object> todo1 = Map.of(
-                "title", "Staple Paperwork",
+                "title", "file paperwork",
                 "doneStatus", false,
-                "description", "Filing paperwork");
+                "description", "");
         Response response1 = request.body(todo1).post("/todos");
         assertEquals(201, response1.getStatusCode(), "Failed to create default todo 1");
         todo1Id = response1.jsonPath().getString("id");
 
         Map<String, Object> todo2 = Map.of(
-                "title", "File Paperwork",
+                "title", "scan paperwork",
                 "doneStatus", false,
-                "description", "Filing paperwork");
+                "description", "");
         Response response2 = request.body(todo2).post("/todos");
         assertEquals(201, response2.getStatusCode(), "Failed to create default todo 2");
         todo2Id = response2.jsonPath().getString("id");

@@ -1,6 +1,6 @@
 Feature: Create todo
 
-As a user, I want to create a new todo to keep
+As a user, I want to create a new to-do item so that to keep track of my tasks
 
 Background: 
     Given the API is responsive and contains only default todo objects

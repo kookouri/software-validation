@@ -22,3 +22,7 @@ The tests use **JUnit 5** and **JDK 18**
 - Exploratory Testing
 - Unit Tests
 
+### Deliverable A: 
+
+- User Stories
+- Cucumber and Gherkins Testing
